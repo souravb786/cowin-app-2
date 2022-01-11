@@ -1,16 +1,18 @@
 import React, {useState, useEffect} from 'react'
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, TouchableOpacity, Image, Dimensions } from 'react-native'
 import * as eva from '@eva-design/eva'
 import { Layout, Select, SelectItem, ApplicationProvider } from '@ui-kitten/components'
 import Header from './Header'
-import { backgroundColor } from 'react-native/Libraries/Components/View/ReactNativeStyleAttributes'
-
-const Home = ({states}) => {
+import { Picker } from '@react-native-picker/picker'
+const {width, height} = Dimensions.get('window')
+console.log(`width: ${width}`)
+console.log(`height: ${height}`)
+const Home = ({states, navigation}) => {
     const [districts, setDistricts] = useState([])
     const [selectedStateId, setSelectedStateId] = useState(-1);
     const [selectedState, setSelectedState] = useState("Select State");
     const [selectedIndex, setSelectedIndex] = React.useState();
-    console.log(states)
+    // console.log(states)
     useEffect(()=> {
       const getDistrict = async () => {
         if(selectedStateId > 0)
@@ -25,28 +27,49 @@ const Home = ({states}) => {
       }
       getDistrict();
     }, [selectedStateId])
+    const NavigateToSlots = () => {
+      navigation.navigate("Slots");
+    }
     const handleStateChange = (rowNo) => {
       setSelectedStateId(states[rowNo-1].state_id);
       setSelectedState(states[rowNo-1].state_name);
     }
     return (
-      <SafeAreaView style={{height:'100%'}}>
+      <SafeAreaView style={{height:'100%', backgroundColor:'white'}}>
         <StatusBar style='inverted'/>
-        <Header />
-        <View><Text>States</Text></View>
-        <View><Text>Districts</Text></View>
+        <View style={{width:'100%'}}>
+          <Image source={{uri:"https://scx2.b-cdn.net/gfx/news/hires/2020/12-covid19vacci.jpg"}} 
+            style={{width:200, height:200, marginHorizontal:((width-200)/2)}}
+            />
+          <Text style={{
+            fontSize:30, fontFamily:'Poppins-Medium',
+            marginLeft:20,
+            letterSpacing:1
+            }}>
+            Find Slots</Text>
+        </View>
         <View style={
           { position:'absolute', bottom:20, width:'100%', alignItems:'center', justifyContent:'center'}
         }>
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={()=>{
+              setTimeout(NavigateToSlots, 2000)
+              clearTimeout()
+            }}
+            style={
+              {
+                width:'80%',
+                backgroundColor:'black',
+                paddingVertical:10,
+                borderRadius:100,
+                alignItems:'center'
+              }
+            }
+          >
               <Text style={{
                 fontSize:26,
                 color:'white',
                 fontFamily:'Poppins',
-                backgroundColor:'black',
-                paddingHorizontal:25,
-                paddingVertical:10,
-                borderRadius:35,
               }}>Fetch Slots</Text>
           </TouchableOpacity>
         </View>

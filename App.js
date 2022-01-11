@@ -4,9 +4,18 @@ import { StyleSheet, Text, View } from 'react-native';
 import Loading from "./screens/Loading";
 import Home from './screens/Home';
 import { useFonts } from 'expo-font';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Slots from "./screens/Slots";
+
+
+const stack = createNativeStackNavigator()
 export default function App() {
   const [fontsLoaded] = useFonts({
-    'Poppins': require('./assets/Fonts/Poppins-SemiBold.ttf') })
+    'Poppins': require('./assets/Fonts/Poppins-SemiBold.ttf'),
+    'Poppins-Medium': require('./assets/Fonts/Poppins-Medium.ttf'),
+    'Poppins-Regular': require('./assets/Fonts/Poppins-Regular.ttf')
+  })
   const [states, setStates] = useState([])
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -37,9 +46,17 @@ export default function App() {
     )
   }
   return (
-    
       loading||(!fontsLoaded)? <Loading />: 
-        <Home states={states}/>
+        <NavigationContainer>
+          <stack.Navigator>
+            <stack.Screen name="Home">
+              {props=> <Home states={states} {...props} />}
+            </stack.Screen>
+            <stack.Screen name="Slots" component={Slots}/>
+
+
+          </stack.Navigator>
+        </NavigationContainer>
       );
 }
 
