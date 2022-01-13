@@ -1,7 +1,5 @@
-import {useState, useEffect} from "react";
-import { StatusBar } from 'expo-status-bar';
+import React, {useState, useEffect} from "react";
 import { StyleSheet, Text, View } from 'react-native';
-import Loading from "./screens/Loading";
 import Home from './screens/Home';
 import { useFonts } from 'expo-font';
 import { NavigationContainer } from "@react-navigation/native";
@@ -27,7 +25,7 @@ export default function App() {
         console.log(response.status)
         const tempStates = (await response.json()).states
         setStates(tempStates.map(({state_id, state_name})=>{
-          return {state_name:state_name, state_id:state_id}
+          return {name:state_name, id:state_id}
         }));
       }
       else { 
@@ -38,7 +36,7 @@ export default function App() {
     setLoading(false)
     
   }, [])
-  console.log(states)
+  // console.log(states)
   if(error)
   {
     return(
@@ -46,15 +44,13 @@ export default function App() {
     )
   }
   return (
-      loading||(!fontsLoaded)? <Loading />: 
+      loading||(!fontsLoaded)? <View><Text>Loading</Text></View>: 
         <NavigationContainer>
           <stack.Navigator>
-            <stack.Screen name="Home">
+            <stack.Screen options={{headerShown:false}} name="Home">
               {props=> <Home states={states} {...props} />}
             </stack.Screen>
             <stack.Screen name="Slots" component={Slots}/>
-
-
           </stack.Navigator>
         </NavigationContainer>
       );

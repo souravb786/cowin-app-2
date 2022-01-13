@@ -1,19 +1,33 @@
 import React, {useState, useEffect} from 'react'
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, TouchableOpacity, Image, Dimensions } from 'react-native'
-import * as eva from '@eva-design/eva'
-import { Layout, Select, SelectItem, ApplicationProvider } from '@ui-kitten/components'
-import Header from './Header'
-import { Picker } from '@react-native-picker/picker'
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  SafeAreaView, 
+  StatusBar, 
+  TouchableOpacity, 
+  Image, 
+  Dimensions,
+  } from 'react-native'
+import CustomPicker from '../components/CustomPicker';
+import { AntDesign } from '@expo/vector-icons';
 const {width, height} = Dimensions.get('window')
-console.log(`width: ${width}`)
-console.log(`height: ${height}`)
+const marginLeft = width*0.1;
 const Home = ({states, navigation}) => {
+    // Modal 
+    const [stateModal, setStateModal] = useState(false);
+    const [districtModal, setDistrictModal] = useState(false);
+
+    // Values
     const [districts, setDistricts] = useState([])
     const [selectedStateId, setSelectedStateId] = useState(-1);
     const [selectedState, setSelectedState] = useState("Select State");
-    const [selectedIndex, setSelectedIndex] = React.useState();
-    // console.log(states)
+    const [selectedDistrict, setSelectedDistrict] = useState("Select District");
+    const [selectedDistrictId, setSelectedDistrictId] = useState(-1);
+
     useEffect(()=> {
+      setSelectedDistrict("Slect District");
+      setSelectedDistrictId(-1);
       const getDistrict = async () => {
         if(selectedStateId > 0)
         {
@@ -21,33 +35,59 @@ const Home = ({states, navigation}) => {
           if(response.status===200)
           {
             const data = await response.json()
-            setDistricts(data.districts);
+            setDistricts(data.districts.map((item, index)=>{
+              return {
+                name: item.district_name,
+                id: item.district_id
+              }
+            }));
           }
         }
       }
       getDistrict();
     }, [selectedStateId])
+    
     const NavigateToSlots = () => {
-      navigation.navigate("Slots");
+      navigation.navigate("Slots", {districtId:selectedDistrictId});
     }
+    
     const handleStateChange = (rowNo) => {
       setSelectedStateId(states[rowNo-1].state_id);
       setSelectedState(states[rowNo-1].state_name);
     }
+
     return (
       <SafeAreaView style={{height:'100%', backgroundColor:'white'}}>
         <StatusBar style='inverted'/>
-        <View style={{width:'100%'}}>
+        <View style={{width:'100%', marginBottom:10}}>
           <Image source={{uri:"https://scx2.b-cdn.net/gfx/news/hires/2020/12-covid19vacci.jpg"}} 
             style={{width:200, height:200, marginHorizontal:((width-200)/2)}}
             />
           <Text style={{
-            fontSize:30, fontFamily:'Poppins-Medium',
-            marginLeft:20,
+            fontSize:35, fontFamily:'Poppins-Medium',
+            marginLeft:marginLeft,
             letterSpacing:1
             }}>
             Find Slots</Text>
         </View>
+        <View style={{alignItems:'center', width:'100%'}}>
+
+          <TouchableOpacity style={styles.inputButton}
+            onPress={()=>setStateModal(true)}
+            >
+            <Text style={styles.inputStyle}
+            >{selectedState}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.inputButton}
+            onPress={()=>setDistrictModal(true)}
+            >
+            <Text style={styles.inputStyle}
+            >{selectedDistrict}</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {/* button */}
         <View style={
           { position:'absolute', bottom:20, width:'100%', alignItems:'center', justifyContent:'center'}
         }>
@@ -72,7 +112,29 @@ const Home = ({states, navigation}) => {
                 fontFamily:'Poppins',
               }}>Fetch Slots</Text>
           </TouchableOpacity>
+          
+          <View style={{flexDirection:'row', alignItems:'center', height:40, width:'100%', justifyContent:'center'}}>
+            <AntDesign name="github" size={24} color="rgba(0,0,0,0.8)" />
+            <Text style={{fontSize:16, fontFamily:"Poppins-Regular", marginLeft:5, opacity:0.8}}>by Souravb786</Text>
+          </View>
         </View>
+        
+        <CustomPicker 
+          isVisible={stateModal} 
+          setVisible={setStateModal} 
+          data={states}
+          setId={setSelectedStateId}
+          setValue={setSelectedState}
+          />
+        <CustomPicker 
+          isVisible={districtModal} 
+          setVisible={setDistrictModal} 
+          data={districts}
+          setId={setSelectedDistrictId}
+          setValue={setSelectedDistrict}
+          />
+
+        
       </SafeAreaView>
     )
 }
@@ -82,8 +144,22 @@ const styles = StyleSheet.create({
     button :{
       marginTop:10,
     },
-    inputSection:{
-      marginTop:20,
+    inputStyle : {
+      fontSize:18,
+      fontFamily:'Poppins-Regular',
+      textAlign:'center', 
+      color:'gray'
+    },
+    inputButton: {
+      width:'80%',
+      height:60,
+      borderRadius:50,
+      borderWidth:2,
+      borderColor:'black',
+      marginBottom:20,
+      marginTop:10, 
+      alignItems:'center', 
+      justifyContent:'center'
     },
     container:{
       paddingTop:60,
@@ -92,18 +168,5 @@ const styles = StyleSheet.create({
       alignItems:'center',
       justifyContent:'flex-start'
     },  
-    select:{
-      width:250,
-      marginTop:10,
-      marginBottom:10,
-    },
-    SelectItem : {
-      minWidth:"100%",
-      borderBottomColor:"#FF6666",
-    },
-    selectItemTitle: {
-      fontSize:20,
-      fontFamily:'Popins'
-    }
   })
   
